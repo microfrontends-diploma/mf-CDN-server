@@ -8,6 +8,8 @@ RUN yarn install
 
 COPY . .
 
+RUN yarn build
+
 EXPOSE 3030
 
-CMD ["yarn", "start"]
+CMD ["yarn", "start:prod"]

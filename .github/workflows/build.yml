@@ -1,0 +1,41 @@
+name: mf-server build
+on:
+  push:
+    branches: ["dev"]
+  pull_request:
+    branches: ["dev"]
+
+env:
+  FILE_NAME: mf-server.cid
+
+jobs:
+  build:
+    name: mf-server
+    runs-on: [self-hosted, linux, X64]
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: build docker image
+        run: docker build . -t mf-server
+
+      - name: reading running container id
+        id: container-id
+        run: |
+          FILE="/home/`whoami`/docker-containers-id/$FILE_NAME"
+          if [ -f $FILE ]; then
+            ID=`cat $FILE`
+            echo "{id}={$ID}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: stopping container, deleting file
+        run: |
+          FILE="/home/`whoami`/docker-containers-id/$FILE_NAME"
+          if [ ! ${{steps.container-id.outputs.id}} ]; then
+            docker stop ${{steps.container-id.outputs.id}}
+            rm $FILE
+          fi
+
+      - name: run docker container and save id
+        run: |
+          FILE="/home/`whoami`/docker-containers-id/$FILE_NAME"
+          docker run --cidfile $FILE -d -p 3030:3030 mf-server
