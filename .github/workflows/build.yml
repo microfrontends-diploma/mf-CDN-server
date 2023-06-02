@@ -23,7 +23,7 @@ jobs:
         run: |
           FILE="/home/`whoami`/docker-containers-id/$FILE_NAME"
           if [ -f "$FILE" ]; then
-            ID=`cat "$FILE"`
+            ID=`cat $FILE`
             echo "{id}={$ID}" >> $GITHUB_OUTPUT
           fi
 
@@ -31,7 +31,7 @@ jobs:
         run: |
           FILE="/home/`whoami`/docker-containers-id/$FILE_NAME"
           if [ ! -z "${{steps.container-id.outputs.id}}" ]; then
-            docker stop "${{steps.container-id.outputs.id}}"
+            docker stop ${{steps.container-id.outputs.id}}
             rm $FILE
           fi
 
