@@ -1,9 +1,9 @@
 name: mf-server build
 on:
   push:
-    branches: ["dev"]
+    branches: ["main"]
   pull_request:
-    branches: ["dev"]
+    branches: ["main"]
 
 env:
   FILE_NAME: mf-server.cid
