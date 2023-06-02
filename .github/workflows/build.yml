@@ -24,7 +24,7 @@ jobs:
           FILE="/home/`whoami`/docker-containers-id/$FILE_NAME"
           if [ -f "$FILE" ]; then
             ID=`cat $FILE`
-            echo "{id}={$ID}" >> $GITHUB_OUTPUT
+            echo "id={$ID}" >> $GITHUB_OUTPUT
           fi
 
       - name: stopping container, deleting file
