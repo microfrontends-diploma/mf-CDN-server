@@ -6,6 +6,7 @@ on:
     branches: ["main"]
 
 env:
+  CONTAINER_TAG: mf-server
   FILE_NAME: mf-server.cid
 
 jobs:
@@ -14,9 +15,6 @@ jobs:
     runs-on: [self-hosted, linux, X64]
     steps:
       - uses: actions/checkout@v3
-
-      - name: build docker image
-        run: docker build . -t mf-server
 
       - name: reading running container id
         id: container-id
@@ -35,7 +33,13 @@ jobs:
             docker stop ${{steps.container-id.outputs.id}}
           fi
 
+      - name: remove previous docker image
+        run: docker rmi -f $CONTAINER_TAG
+
+      - name: build docker image
+        run: docker build . -t $CONTAINER_TAG
+
       - name: run docker container and save id
         run: |
           FILE="/home/`whoami`/docker-containers-id/$FILE_NAME"
-          docker run --cidfile $FILE -d -p 3030:3030 mf-server
+          docker run --cidfile $FILE -d -p 3030:3030 $CONTAINER_TAG
