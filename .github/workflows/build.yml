@@ -27,9 +27,6 @@ jobs:
             echo "{id}={$ID}" >> $GITHUB_OUTPUT
           fi
 
-      - name: debug print
-        run: echo "${{steps.container-id.outputs.id}}"
-
       - name: stopping container, deleting file
         run: |
           FILE="/home/`whoami`/docker-containers-id/$FILE_NAME"
