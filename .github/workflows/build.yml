@@ -31,8 +31,8 @@ jobs:
         run: |
           FILE="/home/`whoami`/docker-containers-id/$FILE_NAME"
           if [ ! -z "${{steps.container-id.outputs.id}}" ]; then
-            docker stop ${{steps.container-id.outputs.id}}
             rm $FILE
+            docker stop ${{steps.container-id.outputs.id}}
           fi
 
       - name: run docker container and save id
