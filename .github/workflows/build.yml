@@ -25,12 +25,21 @@ jobs:
             echo "id=$ID" >> $GITHUB_OUTPUT
           fi
 
-      - name: stopping container, deleting file
+      - name: copying essential files from container
+        run: |
+          DIR="/home/`whoami`/docker-buffer/$CONTAINER_TAG"
+          if [ ! -z "${{steps.container-id.outputs.id}}" ]; then
+            mkdir $DIR
+            docker cp ${{steps.container-id.outputs.id}}:/app/dist/microfrontends "$DIR/"
+          fi
+
+      - name: stopping and removing container, deleting file
         run: |
           FILE="/home/`whoami`/docker-containers-id/$FILE_NAME"
           if [ ! -z "${{steps.container-id.outputs.id}}" ]; then
             rm $FILE
             docker stop ${{steps.container-id.outputs.id}}
+            docker rm ${{steps.container-id.outputs.id}}
           fi
 
       - name: remove previous docker image
@@ -43,3 +52,11 @@ jobs:
         run: |
           FILE="/home/`whoami`/docker-containers-id/$FILE_NAME"
           docker run --cidfile $FILE -d -p 3030:3030 $CONTAINER_TAG
+
+      - name: copying essential files to container
+        run: |
+          DIR="/home/`whoami`/docker-buffer/$CONTAINER_TAG"
+          if [ -d "$DIR" ]; then
+            docker cp "$DIR/microfrontends" ${{steps.container-id.outputs.id}}:/app/dist/ 
+            rm -r $DIR
+          fi
