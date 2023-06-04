@@ -10,10 +10,10 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
-app.use(express.static(PUBLIC_DIR));
 
 // Реализация со статичными файлами (тестовая)
 // const PUBLIC_DIR = path.resolve(__dirname, 'public');
+// app.use(express.static(PUBLIC_DIR));
 
 // if (!fs.existsSync(PUBLIC_DIR)) {
 //   fs.mkdirSync(PUBLIC_DIR);
