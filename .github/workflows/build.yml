@@ -19,7 +19,7 @@ jobs:
       - name: reading running container id
         id: container-id
         run: |
-          FILE="/home/`whoami`/docker-containers-id/$FILE_NAME"
+          FILE="$HOME/docker-containers-id/$FILE_NAME"
           if [ -f "$FILE" ]; then
             ID=`cat $FILE`
             echo "id=$ID" >> $GITHUB_OUTPUT
@@ -27,15 +27,19 @@ jobs:
 
       - name: copying essential files from container
         run: |
-          DIR="/home/`whoami`/docker-buffer/$CONTAINER_TAG"
+          DIR="$HOME/docker-buffer/$CONTAINER_TAG"
           if [ ! -z "${{steps.container-id.outputs.id}}" ]; then
-            mkdir $DIR
-            docker cp ${{steps.container-id.outputs.id}}:/app/dist/microfrontends "$DIR/"
+            DIRECTORY_CHECK=`docker exec ${{steps.container-id.outputs.id}} [ -d /app/dist/microfrontends ] && echo 1 || echo 0`
+            
+            if [ "$DIRECTORY_CHECK" -eq 1 ]; then
+              mkdir $DIR
+              docker cp ${{steps.container-id.outputs.id}}:/app/dist/microfrontends "$DIR/"
+            fi
           fi
 
       - name: stopping and removing container, deleting file
         run: |
-          FILE="/home/`whoami`/docker-containers-id/$FILE_NAME"
+          FILE="$HOME/docker-containers-id/$FILE_NAME"
           if [ ! -z "${{steps.container-id.outputs.id}}" ]; then
             rm $FILE
             docker stop ${{steps.container-id.outputs.id}}
@@ -50,13 +54,17 @@ jobs:
 
       - name: run docker container and save id
         run: |
-          FILE="/home/`whoami`/docker-containers-id/$FILE_NAME"
+          FILE="$HOME/docker-containers-id/$FILE_NAME"
           docker run --cidfile $FILE -d -p 3030:3030 $CONTAINER_TAG
 
       - name: copying essential files to container
         run: |
-          DIR="/home/`whoami`/docker-buffer/$CONTAINER_TAG"
+          DIR="$HOME/docker-buffer/$CONTAINER_TAG"
           if [ -d "$DIR" ]; then
-            docker cp "$DIR/microfrontends" ${{steps.container-id.outputs.id}}:/app/dist/ 
-            rm -r $DIR
+            DIRECTORY_CHECK=`docker exec ${{steps.container-id.outputs.id}} [ -d /app/dist ] && echo 1 || echo 0`
+
+            if [ "$DIRECTORY_CHECK" -eq 1 ]; then
+              docker cp "$DIR/microfrontends" ${{steps.container-id.outputs.id}}:/app/dist/ 
+              rm -r $DIR
+            fi
           fi
