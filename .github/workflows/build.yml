@@ -30,7 +30,7 @@ jobs:
         run: |
           DIR="$HOME/docker-buffer/$CONTAINER_TAG"
           if [ ! -z "${{steps.container-id.outputs.id}}" ]; then
-            DIRECTORY_CHECK=`docker exec -it ${{steps.container-id.outputs.id}} sh -c "test -d /app/dist/microfrontends ] && echo 1 || echo 0"`
+            DIRECTORY_CHECK=`docker exec -i ${{steps.container-id.outputs.id}} sh -c "test -d /app/dist/microfrontends ] && echo 1 || echo 0"`
             
             if [ "$DIRECTORY_CHECK" -eq 1 ]; then
               mkdir $DIR
@@ -63,7 +63,7 @@ jobs:
         run: |
           DIR="$HOME/docker-buffer/$CONTAINER_TAG"
           if [ -d "$DIR" ]; then
-            DIRECTORY_CHECK=`docker exec -it ${{steps.container-id.outputs.id}} sh -c "test -d /app/dist ] && echo 1 || echo 0"`
+            DIRECTORY_CHECK=`docker exec -i ${{steps.container-id.outputs.id}} sh -c "test -d /app/dist ] && echo 1 || echo 0"`
 
             if [ "$DIRECTORY_CHECK" -eq 1 ]; then
               docker cp "$DIR/microfrontends" ${{steps.container-id.outputs.id}}:/app/dist/ 
