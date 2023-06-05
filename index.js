@@ -11,41 +11,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-// Реализация со статичными файлами (тестовая)
-// const PUBLIC_DIR = path.resolve(__dirname, 'public');
-// app.use(express.static(PUBLIC_DIR));
-
-// if (!fs.existsSync(PUBLIC_DIR)) {
-//   fs.mkdirSync(PUBLIC_DIR);
-// }
-
-// app.get('/microfrontends', (_, res) => {
-//   let dataToResponse = [];
-
-//   const mfFolders = fs.readdirSync(PUBLIC_DIR);
-
-//   for (const mfFolder of mfFolders) {
-//     if (!fs.existsSync(path.resolve(PUBLIC_DIR, mfFolder, 'index.js'))) {
-//       continue;
-//     }
-
-//     const mfInfo = {
-//       name: mfFolder,
-//       src: `/${mfFolder}/index.js`,
-//       route: `/${mfFolder}`,
-//     }
-
-//     if (fs.existsSync(path.resolve(PUBLIC_DIR, mfFolder, 'index.css'))) {
-//       mfInfo.styles = `/${mfFolder}/index.css`;
-//     }
-
-//     dataToResponse.push(mfInfo);
-//   }
-
-//   res.json(dataToResponse);
-// });
-
-// Реализация с юрлами (рабочая)
 const MF_DIR = path.resolve(__dirname, 'microfrontends');
 const MF_FILENAME = 'data.json';
 
@@ -68,13 +33,24 @@ app.get('/microfrontends', (_, res) => {
   res.json(dataToResponse);
 });
 
+// Захардожено, по идее такой запрос должен делаться к бэку SIMuRG
+app.get('/available-microfrontends', (_, res) => {
+  res.json([{ name: 'rinex-to-csv', status: 'active' }, { name: 'navi', status: 'active' }]);
+});
+
 app.post('/link-microfrontend', (req, res) => {
   checkAndCreateMFDirectory();
   const data = req.body;
 
   try {
     const mfArray = JSON.parse(fs.readFileSync(path.resolve(MF_DIR, MF_FILENAME)));
-    mfArray.push(data);
+    const index = mfArray.findIndex((mfObject) => mfObject.name === data.name);
+
+    if (index >= 0) {
+      mfArray[index] = data
+    } else {
+      mfArray.push(data);
+    }
 
     fs.writeFileSync(path.resolve(MF_DIR, MF_FILENAME), JSON.stringify(mfArray));
 
@@ -82,7 +58,7 @@ app.post('/link-microfrontend', (req, res) => {
   } catch (e) {
     res.status(400);
   } finally {
-    res.send()
+    res.send();
   }
 });
 
